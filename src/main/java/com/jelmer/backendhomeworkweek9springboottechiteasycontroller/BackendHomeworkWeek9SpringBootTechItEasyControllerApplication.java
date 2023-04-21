@@ -1,4 +1,4 @@
-package com.jelmer.cbackendhomeworkweek9springboottechiteasycontroller;
+package com.jelmer.backendhomeworkweek9springboottechiteasycontroller;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
