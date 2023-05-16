@@ -6,6 +6,10 @@ import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.exceptions.
 import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.models.Television;
 import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.repositories.TelevisionRepository;
 import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.service.TelevisionService;
+import jakarta.validation.Valid;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +23,7 @@ import java.util.Optional;
 @RequestMapping("/tv") // Set base URL path
 
 public class TelevisionsController {
+    @Autowired
     private final TelevisionService televisionService;
 
     public TelevisionsController(TelevisionService televisionService) {
@@ -50,7 +55,35 @@ public class TelevisionsController {
         return ResponseEntity.ok().body(television);
 
     }
+    @PutMapping("/{id}")
+    public ResponseEntity<Object> updateTelevision(@PathVariable Long id, @Valid @RequestBody TelevisionDto televisionInputDto, BindingResult bindingResult) {
+        if (bindingResult.hasFieldErrors()){
+            return ResponseEntity.badRequest().body(errorToStringHandling(bindingResult));
+        }
+        return new ResponseEntity<>(televisionService.updateTelevision(id, televisionInputDto), HttpStatus.ACCEPTED);
+    }
 
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteTelevision(@PathVariable Long id) {
+        String message = televisionService.deleteTelevision(id);
+        return ResponseEntity.ok().body(message);
+    }
+//    @DeleteMapping("/{id}")
+//    public ResponseEntity<HttpStatus> deleteTelevision(@PathVariable Long id) {
+//        televisionService.deleteTelevision(id);
+//        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+//    }
+
+    public String errorToStringHandling (BindingResult bindingResult){
+        StringBuilder sb = new StringBuilder();
+        for (FieldError fe : bindingResult.getFieldErrors()){
+            sb.append(fe.getField() + ": ");
+            sb.append(fe.getDefaultMessage());
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
 
 //    @PutMapping("/{id}") // alleen voor naam aanpassen werkt dit
 //    public ResponseEntity<Television> updateTV(@PathVariable Long id, @RequestBody Television updatedTelevision) {
