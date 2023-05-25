@@ -1,11 +1,14 @@
 package com.jelmer.backendhomeworkweek9springboottechiteasycontroller.service;
 
-import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.dto.TelevisionDto;
+import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.dto.InputDto.TelevisionInputDto;
+import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.dto.OutputDto.TelevisionOutputDto;
 import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.exceptions.RecordNotFoundException;
-import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.exceptions.TelevisionNameTooLongException;
+import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.models.RC;
+import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.repositories.RCRepository;
 import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.models.Television;
 import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.repositories.TelevisionRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.repositories.WallbracketRepository;
+import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -15,58 +18,50 @@ import java.util.Optional;
 @Service
 public class TelevisionService {
 
-    @Autowired
     private final TelevisionRepository televisionRepository;
+    private final RCRepository rcRepository;
+    private final WallbracketRepository wallbracketRepository;
 
-    public TelevisionService(TelevisionRepository televisionRepository) {
+
+    public TelevisionService(TelevisionRepository televisionRepository, RCRepository rcRepository, WallbracketRepository wallbracketRepository) {
         this.televisionRepository = televisionRepository;
+        this.rcRepository = rcRepository;
+        this.wallbracketRepository = wallbracketRepository;
     }
 
 
-    public List<TelevisionDto> getAllTVs() {
+    public List<TelevisionOutputDto> getAllTVs() {
         List<Television> televisions = televisionRepository.findAll();
-        List<TelevisionDto> televisionDtos = new ArrayList<>();
+        List<TelevisionOutputDto> televisionOutputDtos = new ArrayList<>();
         for (Television television : televisions) {
             //        voor elke tv ook tv dto aanmaken
 
 //        Tv dto toevoegen aan de lijst en die halen we uit transfer methode
 
-            televisionDtos.add(transferTelevisionModelToOutputDto(television));
+            televisionOutputDtos.add(transferTelevisionModelToOutputDto(television));
         }
-        return televisionDtos;
+        return televisionOutputDtos;
     }
 
-    public TelevisionDto getTelevisionById(Long id) {
-        Optional<Television> televisionOptional = televisionRepository.findById(id);
-        if (televisionOptional.isPresent()) {
-            Television television = televisionOptional.get();
-            return transferTelevisionModelToOutputDto(television);
-        } else {
-            throw new RecordNotFoundException("Televisie niet gevonden met ID: " + id);
-        }
+    public TelevisionOutputDto getTelevisionById(Long id) throws RecordNotFoundException {
+        Television television = televisionRepository.findById(id).orElseThrow(() -> new RecordNotFoundException("Television with id " + id + " doesn't exist"));
+        TelevisionOutputDto televisionOutputDto = transferTelevisionModelToOutputDto(television);
+        return televisionOutputDto;
+
     }
-
-
 
 
     // input dto  want gaat richting database
 //    output dto gaat richting client
-    public Television addTelevision(TelevisionDto televisionDto) {
-        if (televisionDto.brand.length() > 20) {
-            throw new TelevisionNameTooLongException("Mag niet langer dan 20 letters zijn");
-        }
-        Television television = transferDtoToTelevision(televisionDto);
-        television = televisionRepository.save(television);
-
-        return television;
-
-
-
+    public TelevisionOutputDto addTelevision(TelevisionInputDto televisionInputDto) {
+        Television television = transferInputDtoToTelevisionModel(televisionInputDto);
+        televisionRepository.save((television));
+        TelevisionOutputDto televisionOutputDto = transferTelevisionModelToOutputDto(television);
+        return televisionOutputDto;
     }
 
 
-
-    public TelevisionDto updateTelevision(Long id, TelevisionDto televisionInputDto)  throws RecordNotFoundException {
+    public TelevisionOutputDto updateTelevision(Long id, TelevisionInputDto televisionInputDto) throws RecordNotFoundException {
         Television television = televisionRepository.findById(id).orElseThrow(() -> new RecordNotFoundException("Television with id " + id + " doesn't exist"));
         // als de variabelen niet ingevuld worden in client side, dan worden deze variabelen gevuld met de volgende waardes: 0, 0.0, null, of false (=default boolean) (afhankelijk van type variabele). Daarom eerst checken of de variabelen wel meegegeven worden in de body.
         //Bij de inputDto wordt momenteel een aantal variabelen gecheckt op notBank etc, maar sommige niet. Die kunnen voor null vervangen worden zonder onderstaande checks.
@@ -121,7 +116,7 @@ public class TelevisionService {
         return transferTelevisionModelToOutputDto(television);
     }
 
-    public String deleteTelevision (Long id) throws RecordNotFoundException {
+    public String deleteTelevision(Long id) throws RecordNotFoundException {
         Television television = televisionRepository.findById(id).orElseThrow(() -> new RecordNotFoundException("Television with id " + id + " doesn't exist"));
 
         televisionRepository.delete(television);
@@ -129,55 +124,68 @@ public class TelevisionService {
         return "Television successfully removed";
     }
 
-
-
-
-    public TelevisionDto transferTelevisionModelToOutputDto(Television television) {
-        TelevisionDto televisionDto = new TelevisionDto();
-
-        televisionDto.id = television.getId();
-        televisionDto.name = television.getName();
-        televisionDto.brand = television.getBrand();
-        televisionDto.type =television.getType();
-        televisionDto.price = television.getPrice();
-        televisionDto.availableSize = television.getAvailableSize();
-        televisionDto.refreshRate = television.getRefreshRate();
-        televisionDto.screenType = television.getScreenType();
-        televisionDto.screenQuality =television.getScreenQuality();
-        televisionDto.smartTv = television.getSmartTv();
-        televisionDto.wifi = television.getWifi();
-        televisionDto.voiceControl = television.getVoiceControl();
-        televisionDto.hdr = television.getHdr();
-        televisionDto.bluetooth = television.getBluetooth();
-        televisionDto.ambiLight = television.getAmbiLight();
-        televisionDto.originalStock = television.getOriginalStock();
-        televisionDto.sold = television.getSold();
-
-
-
-        return televisionDto;
+    public TelevisionOutputDto assignRemoteToTelevision(Long id, Long rc_id) throws RecordNotFoundException {
+        Optional<Television> optionalTelevision = televisionRepository.findById(id);
+        Optional<RC> optionalRC = rcRepository.findById(rc_id);
+        if(optionalTelevision.isEmpty() && optionalRC.isEmpty()) {
+            throw new RecordNotFoundException("Remote or television with" + rc_id + " and " + id + "does not exist");
+        }
+        Television television = optionalTelevision.get();
+        RC rc = optionalRC.get();
+        television.setRc(rc);
+        Television updateTelevision =  televisionRepository.save(television);
+        return transferTelevisionModelToOutputDto(updateTelevision);
     }
 
+
+    public TelevisionOutputDto transferTelevisionModelToOutputDto(Television television) {
+        TelevisionOutputDto televisionOutputDto = new TelevisionOutputDto();
+
+        televisionOutputDto.id = television.getId();
+        televisionOutputDto.name = television.getName();
+        televisionOutputDto.brand = television.getBrand();
+        televisionOutputDto.type = television.getType();
+        televisionOutputDto.price = television.getPrice();
+        televisionOutputDto.availableSize = television.getAvailableSize();
+        televisionOutputDto.refreshRate = television.getRefreshRate();
+        televisionOutputDto.screenType = television.getScreenType();
+        televisionOutputDto.screenQuality = television.getScreenQuality();
+        televisionOutputDto.smartTv = television.getSmartTv();
+        televisionOutputDto.wifi = television.getWifi();
+        televisionOutputDto.voiceControl = television.getVoiceControl();
+        televisionOutputDto.hdr = television.getHdr();
+        televisionOutputDto.bluetooth = television.getBluetooth();
+        televisionOutputDto.ambiLight = television.getAmbiLight();
+        televisionOutputDto.originalStock = television.getOriginalStock();
+        televisionOutputDto.sold = television.getSold();
+        televisionOutputDto.rc = television.getRc();
+
+
+
+        return televisionOutputDto;
+    }
+
+
     //voor put/post request   input naar data base
-    public Television transferDtoToTelevision(TelevisionDto televisionDto) {
+    public Television transferInputDtoToTelevisionModel(TelevisionInputDto televisionInputDto) {
         Television television = new Television();
 
-        television.name = televisionDto.name;
-        television.brand = televisionDto.brand;
-        television.type =televisionDto.type;
-        television.price =televisionDto.price;
-        television.availableSize =televisionDto.availableSize;
-        television.refreshRate =televisionDto.refreshRate;
-        television.screenQuality =televisionDto.screenQuality;
-        television.screenType =televisionDto.screenType;
-        television.smartTv =televisionDto.smartTv;
-        television.wifi =televisionDto.wifi;
-        television.voiceControl =televisionDto.voiceControl;
-        television.setHdr(televisionDto.getHdr());
-        television.setBluetooth(televisionDto.getBluetooth());
-        television.setAmbiLight(televisionDto.getAmbiLight());
-        television.setOriginalStock(televisionDto.getOriginalStock());
-        television.setSold(televisionDto.getSold());
+        television.name = televisionInputDto.name;
+        television.brand = televisionInputDto.brand;
+        television.type = televisionInputDto.type;
+        television.price = televisionInputDto.price;
+        television.availableSize = televisionInputDto.availableSize;
+        television.refreshRate = televisionInputDto.refreshRate;
+        television.screenQuality = televisionInputDto.screenQuality;
+        television.screenType = televisionInputDto.screenType;
+        television.smartTv = televisionInputDto.smartTv;
+        television.wifi = televisionInputDto.wifi;
+        television.voiceControl = televisionInputDto.voiceControl;
+        television.setHdr(televisionInputDto.getHdr());
+        television.setBluetooth(televisionInputDto.getBluetooth());
+        television.setAmbiLight(televisionInputDto.getAmbiLight());
+        television.setOriginalStock(televisionInputDto.getOriginalStock());
+        television.setSold(televisionInputDto.getSold());
 
 
         return television;
@@ -185,4 +193,21 @@ public class TelevisionService {
     }
 
 
+//    public void assignRemoteControllerToTelevision(Long id, Long remoteControllerId) {
+//        var optionalTelevision = repos.findById(id);
+//        var optionalRemoteController = remoteControllerRepository.findById(remoteControllerId);
+//
+//        if(optionalTelevision.isPresent() && optionalRemoteController.isPresent()) {
+//            var television = optionalTelevision.get();
+//            var remoteController = optionalRemoteController.get();
+//
+//            television.setRemoteController(remoteController);
+//            repos.save(television);
+//        } else {
+//            throw new RecordNotFoundException();
+//        }
+
 }
+
+
+

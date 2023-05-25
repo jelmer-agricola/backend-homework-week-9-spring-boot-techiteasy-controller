@@ -1,5 +1,6 @@
-package com.jelmer.backendhomeworkweek9springboottechiteasycontroller.dto;
+package com.jelmer.backendhomeworkweek9springboottechiteasycontroller.dto.InputDto;
 
+import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.models.RC;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
@@ -7,7 +8,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class TelevisionDto {
+public class TelevisionInputDto {
 
     public Long id;
 
@@ -31,5 +32,6 @@ public class TelevisionDto {
     public Integer originalStock;
     public Integer sold;
 
+    public RC rc;
 
 }

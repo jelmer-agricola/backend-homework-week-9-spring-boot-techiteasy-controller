@@ -1,15 +1,11 @@
 package com.jelmer.backendhomeworkweek9springboottechiteasycontroller.controllers;
 
-import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.dto.TelevisionDto;
-import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.exceptions.RecordNotFoundException;
-import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.exceptions.TelevisionNameTooLongException;
-import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.models.Television;
-import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.repositories.TelevisionRepository;
+import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.dto.InputDto.TelevisionInputDto;
+import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.dto.OutputDto.TelevisionOutputDto;
 import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.service.TelevisionService;
 import jakarta.validation.Valid;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,13 +13,12 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/tv") // Set base URL path
 
 public class TelevisionsController {
-    @Autowired
+//    @Autowired
     private final TelevisionService televisionService;
 
     public TelevisionsController(TelevisionService televisionService) {
@@ -32,31 +27,28 @@ public class TelevisionsController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TelevisionDto>>getAllTVs(){
+    public ResponseEntity<List<TelevisionOutputDto>>getAllTVs(){
         return ResponseEntity.ok().body(televisionService.getAllTVs());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<TelevisionOutputDto> getTelevisionById(@PathVariable Long id) {
+        return new ResponseEntity<>(televisionService.getTelevisionById(id), HttpStatus.OK);
     }
 
 
     @PostMapping("/add")
-    public ResponseEntity<String> addTelevision(@RequestBody TelevisionDto televisiondto) {
-
-        Television television = televisionService.addTelevision(televisiondto);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-                .buildAndExpand(television.getId()).toUri();
-
-        return ResponseEntity.created(location).body("television created" );
-//
+    public ResponseEntity<Object> addTelevision(@Valid @RequestBody TelevisionInputDto televisionInputDto, BindingResult bindingResult) {
+        if (bindingResult.hasFieldErrors()) {
+            return ResponseEntity.badRequest().body(errorToStringHandling(bindingResult));
+        }
+        TelevisionOutputDto televisionOutputDto = televisionService.addTelevision(televisionInputDto);
+        URI uri = URI.create(ServletUriComponentsBuilder.fromCurrentRequest().path("/" + televisionOutputDto).toUriString());
+        return ResponseEntity.created(uri).body(televisionOutputDto);
     }
-    @GetMapping("/{id}")
-    public ResponseEntity<TelevisionDto> getTelevision(@PathVariable("id")Long id) {
 
-        TelevisionDto television = televisionService.getTelevisionById(id);
-
-        return ResponseEntity.ok().body(television);
-
-    }
     @PutMapping("/{id}")
-    public ResponseEntity<Object> updateTelevision(@PathVariable Long id, @Valid @RequestBody TelevisionDto televisionInputDto, BindingResult bindingResult) {
+    public ResponseEntity<Object> updateTelevision(@PathVariable Long id, @Valid @RequestBody TelevisionInputDto televisionInputDto, BindingResult bindingResult) {
         if (bindingResult.hasFieldErrors()){
             return ResponseEntity.badRequest().body(errorToStringHandling(bindingResult));
         }
@@ -69,11 +61,12 @@ public class TelevisionsController {
         String message = televisionService.deleteTelevision(id);
         return ResponseEntity.ok().body(message);
     }
-//    @DeleteMapping("/{id}")
-//    public ResponseEntity<HttpStatus> deleteTelevision(@PathVariable Long id) {
-//        televisionService.deleteTelevision(id);
-//        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-//    }
+
+    @PutMapping("/{id}/rc/{rc_id}")
+    public ResponseEntity<TelevisionOutputDto> assignRemoteToTelevision(@PathVariable Long id, @PathVariable Long rc_id) {
+        return ResponseEntity.ok(televisionService.assignRemoteToTelevision(id, rc_id));
+    }
+
 
     public String errorToStringHandling (BindingResult bindingResult){
         StringBuilder sb = new StringBuilder();
@@ -85,32 +78,6 @@ public class TelevisionsController {
         return sb.toString();
     }
 
-//    @PutMapping("/{id}") // alleen voor naam aanpassen werkt dit
-//    public ResponseEntity<Television> updateTV(@PathVariable Long id, @RequestBody Television updatedTelevision) {
-//        Optional<Television> optionalTelevision = televisionRepository.findById(id);
-//        if (optionalTelevision.isEmpty()) {
-//            throw new RecordNotFoundException("No television found with id: " + id);
-//        } else {
-//            Television television = optionalTelevision.get();
-//            television.setName(updatedTelevision.getName());
-//            television.setType(updatedTelevision.getType());
-//            televisionRepository.save(television);
-//            return ResponseEntity.ok().body(television);
-//        }
-//    }
-//
-//    @DeleteMapping("/{id}") // Use singular noun and resource ID in URI
-//    public ResponseEntity<String> deleteTV(@PathVariable Long id) {
-//        Optional<Television> optionalTelevision = televisionRepository.findById(id);
-//        if (optionalTelevision.isEmpty()) {
-//            throw new RecordNotFoundException("No television found with id: " + id);
-//        } else {
-//            Television television = optionalTelevision.get();
-//            televisionRepository.delete(television);
-//            return ResponseEntity.ok("TV item " + television.getName() + " deleted");
-//        }
-//    }
-//
 
 
 }

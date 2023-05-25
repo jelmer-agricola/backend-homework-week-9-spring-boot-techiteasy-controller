@@ -1,12 +1,17 @@
 package com.jelmer.backendhomeworkweek9springboottechiteasycontroller.models;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
+//@AllArgsConstructor
+//@NoArgsConstructor
 @Setter
 @Getter
 @Entity
@@ -14,7 +19,7 @@ import lombok.Setter;
 public class Television {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
 // in eindopdracht primary key maken van kenteken
     private Long id;
 
@@ -35,6 +40,24 @@ public class Television {
     private Integer originalStock;
     private Integer sold;
 
+    // Dit is de owner kan van de relatie. Er staat een foreign key in de database
+    @OneToOne
+    @JsonIgnore
+    private RC rc;
+
+    @OneToMany(mappedBy = "television")
+    private List<CIModule> ciModule;
+
+//    // Dit is de owner kan van de relatie. Er staat een foreign key in de database
+//    @ManyToOne(fetch = FetchType.EAGER)
+//    @JoinColumn(name = "ci_module_id")
+//    private CIModule ciModule;
+//
+//    // Dit is de target kant van de relatie. Er staat niks in de database
+//    @OneToMany(mappedBy = "television")
+//    @LazyCollection(LazyCollectionOption.FALSE)
+//    @JsonIgnore
+//    Collection<TelevisionWallBracket> televisionWallBrackets;
 
 
         // Een default constructor
@@ -76,5 +99,8 @@ public class Television {
         this.originalStock = originalStock;
         this.sold = sold;
     }
+
+
+
 
 }
