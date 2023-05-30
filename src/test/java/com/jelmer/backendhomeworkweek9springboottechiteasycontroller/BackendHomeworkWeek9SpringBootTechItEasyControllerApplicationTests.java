@@ -1,4 +1,4 @@
-package com.jelmer.cbackendhomeworkweek9springboottechiteasycontroller;
+package com.jelmer.backendhomeworkweek9springboottechiteasycontroller;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -6,8 +6,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class BackendHomeworkWeek9SpringBootTechItEasyControllerApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
+    @Test
+    void contextLoads() {
+    }
 
 }
