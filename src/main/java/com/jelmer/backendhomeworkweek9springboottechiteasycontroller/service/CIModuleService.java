@@ -5,18 +5,24 @@ import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.dto.InputDt
 import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.dto.OutputDto.CIModuleOutputDto;
 import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.exceptions.RecordNotFoundException;
 import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.models.CIModule;
+import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.models.Television;
 import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.repositories.CIModuleRepository;
+import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.repositories.TelevisionRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CIModuleService {
     private final CIModuleRepository ciModuleRepository;
+    private final TelevisionRepository televisionRepository;
 
-    public CIModuleService(CIModuleRepository ciModuleRepository) {
+
+    public CIModuleService(CIModuleRepository ciModuleRepository, TelevisionRepository televisionRepository) {
         this.ciModuleRepository = ciModuleRepository;
+        this.televisionRepository = televisionRepository;
     }
 
 
@@ -71,6 +77,19 @@ public class CIModuleService {
     }
 
 
+    public String assignTelevisionToCIModule(Long id, Long tv_id){
+
+    Optional<CIModule> optionalCIModule = ciModuleRepository.findById(id);
+    Optional<Television> optionalTelevision = televisionRepository.findById(tv_id);
+        if(optionalCIModule.isEmpty() && optionalCIModule.isEmpty()) {
+        throw new RecordNotFoundException("Television or CiModule with" + tv_id + " and " + id + "does not exist");
+    }
+    CIModule ciModule = optionalCIModule.get();
+    Television television = optionalTelevision.get();
+        ciModule.setTelevision(television);
+        ciModuleRepository.save(ciModule);
+        return "televisie toegevoegd aan cimodule!";
+}
     public CIModule transferInputDtoToCIModuleModel(CIModuleInputDto ciModuleInputDto){
         CIModule ciModule = new CIModule();
 

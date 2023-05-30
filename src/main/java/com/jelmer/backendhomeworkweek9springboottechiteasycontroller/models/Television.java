@@ -2,6 +2,7 @@ package com.jelmer.backendhomeworkweek9springboottechiteasycontroller.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -48,19 +49,19 @@ public class Television {
     @OneToMany(mappedBy = "television")
     private List<CIModule> ciModule;
 
-//    // Dit is de owner kan van de relatie. Er staat een foreign key in de database
-//    @ManyToOne(fetch = FetchType.EAGER)
-//    @JoinColumn(name = "ci_module_id")
-//    private CIModule ciModule;
-//
-//    // Dit is de target kant van de relatie. Er staat niks in de database
-//    @OneToMany(mappedBy = "television")
-//    @LazyCollection(LazyCollectionOption.FALSE)
-//    @JsonIgnore
-//    Collection<TelevisionWallBracket> televisionWallBrackets;
 
 
-        // Een default constructor
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "television_wallbracket",
+            joinColumns = @JoinColumn(name = "tv_id"),
+            inverseJoinColumns = @JoinColumn(name = "wallbracket_id")
+    )
+    private List<Wallbracket> wallbrackets;
+
+
+
+    // Een default constructor
     public Television() {}
 
     // Een constructor met alle gevraagde variable

@@ -22,7 +22,7 @@ public class CIModule {
     private Double price;
 
     @ManyToOne
-    @JoinColumn(name = "tvid")
+    @JoinColumn(name = "tv_id")
     private Television television;
 
 

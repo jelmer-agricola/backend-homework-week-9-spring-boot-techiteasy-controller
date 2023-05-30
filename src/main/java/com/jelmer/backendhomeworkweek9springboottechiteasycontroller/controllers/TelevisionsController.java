@@ -1,6 +1,7 @@
 package com.jelmer.backendhomeworkweek9springboottechiteasycontroller.controllers;
 
 import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.dto.InputDto.TelevisionInputDto;
+import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.dto.InputDto.WallbracketInputDto;
 import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.dto.OutputDto.TelevisionOutputDto;
 import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.service.TelevisionService;
 import jakarta.validation.Valid;
@@ -65,6 +66,11 @@ public class TelevisionsController {
     @PutMapping("/{id}/rc/{rc_id}")
     public ResponseEntity<TelevisionOutputDto> assignRemoteToTelevision(@PathVariable Long id, @PathVariable Long rc_id) {
         return ResponseEntity.ok(televisionService.assignRemoteToTelevision(id, rc_id));
+    }
+
+    @PutMapping("/{id}/wallbracket/{wallbracket_id}")
+    public ResponseEntity<String> assignWallbracketToTelevision(@PathVariable Long id, @PathVariable Long wallbracket_id  ){
+        return ResponseEntity.ok(televisionService.assignWallbracketToTelevision(id, wallbracket_id));
     }
 
 

@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Setter
 @Getter
 @Entity
@@ -21,9 +23,9 @@ public class Wallbracket {
     private String name;
     private Double price;
 
-    // Dit is de target kant van de relatie. Er staat niks in de database
-//    @OneToMany(mappedBy = "wallBracket")
-//    @JsonIgnore
-//    List<TelevisionWallBracket> televisionWallBrackets;
 
+
+    @ManyToMany(mappedBy = "wallbrackets")
+    private List<Television> televisions;
 }
+

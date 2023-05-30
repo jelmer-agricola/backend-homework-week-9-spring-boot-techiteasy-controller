@@ -1,19 +1,12 @@
 package com.jelmer.backendhomeworkweek9springboottechiteasycontroller.service;
 
-import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.dto.InputDto.CIModuleInputDto;
 import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.dto.InputDto.WallbracketInputDto;
-import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.dto.OutputDto.CIModuleOutputDto;
-import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.dto.OutputDto.RCOutputDto;
 import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.dto.OutputDto.WallbracketOutputDto;
 import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.exceptions.RecordNotFoundException;
-import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.models.CIModule;
-import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.models.RC;
 import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.models.Wallbracket;
+import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.repositories.TelevisionRepository;
 import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.repositories.WallbracketRepository;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,9 +16,11 @@ import java.util.List;
 public class WallbracketService {
 
     private final WallbracketRepository wallbracketRepository;
+    private final TelevisionRepository televisionRepository;
 
-    public WallbracketService(WallbracketRepository wallbracketRepository){
+    public WallbracketService(WallbracketRepository wallbracketRepository, TelevisionRepository televisionRepository){
         this.wallbracketRepository = wallbracketRepository;
+        this.televisionRepository = televisionRepository;
     }
 
     public List<WallbracketOutputDto> getAllWallbrackets() {

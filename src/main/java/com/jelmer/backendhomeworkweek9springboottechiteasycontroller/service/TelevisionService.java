@@ -4,6 +4,7 @@ import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.dto.InputDt
 import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.dto.OutputDto.TelevisionOutputDto;
 import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.exceptions.RecordNotFoundException;
 import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.models.RC;
+import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.models.Wallbracket;
 import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.repositories.RCRepository;
 import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.models.Television;
 import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.repositories.TelevisionRepository;
@@ -127,16 +128,32 @@ public class TelevisionService {
     public TelevisionOutputDto assignRemoteToTelevision(Long id, Long rc_id) throws RecordNotFoundException {
         Optional<Television> optionalTelevision = televisionRepository.findById(id);
         Optional<RC> optionalRC = rcRepository.findById(rc_id);
-        if(optionalTelevision.isEmpty() && optionalRC.isEmpty()) {
+        if (optionalTelevision.isEmpty() && optionalRC.isEmpty()) {
             throw new RecordNotFoundException("Remote or television with" + rc_id + " and " + id + "does not exist");
         }
         Television television = optionalTelevision.get();
         RC rc = optionalRC.get();
         television.setRc(rc);
-        Television updateTelevision =  televisionRepository.save(television);
+        Television updateTelevision = televisionRepository.save(television);
         return transferTelevisionModelToOutputDto(updateTelevision);
     }
 
+
+    public String assignWallbracketToTelevision(Long id, Long wallbracket_id) throws RecordNotFoundException {
+        Optional<Television> optionalTelevision = televisionRepository.findById(id);
+        Optional<Wallbracket> optionalWallbracket = wallbracketRepository.findById(wallbracket_id);
+        if (optionalTelevision.isEmpty() && optionalWallbracket.isEmpty()) {
+            throw new RecordNotFoundException("Wallbracket or television with" + wallbracket_id + " and " + id + "does not exist");
+        }
+        Television television =optionalTelevision.get();
+        Wallbracket wallbracket = optionalWallbracket.get();
+        List <Wallbracket> wallbracketList = television.getWallbrackets();
+        wallbracketList.add(wallbracket);
+        television.setWallbrackets(wallbracketList);
+        televisionRepository.save(television);
+        return "hoera";
+
+    }
 
     public TelevisionOutputDto transferTelevisionModelToOutputDto(Television television) {
         TelevisionOutputDto televisionOutputDto = new TelevisionOutputDto();
@@ -159,7 +176,6 @@ public class TelevisionService {
         televisionOutputDto.originalStock = television.getOriginalStock();
         televisionOutputDto.sold = television.getSold();
         televisionOutputDto.rc = television.getRc();
-
 
 
         return televisionOutputDto;

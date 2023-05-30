@@ -64,6 +64,9 @@ public class CIModuleController {
             return ResponseEntity.notFound().build();
         }
 
-
+    }
+    @PutMapping("/{id}/tv/{tv_id}")
+    public ResponseEntity<String> assignTelevisionToCIModule(@PathVariable Long id, @PathVariable Long tv_id){
+        return ResponseEntity.ok(ciModuleService.assignTelevisionToCIModule(id, tv_id));
     }
 }

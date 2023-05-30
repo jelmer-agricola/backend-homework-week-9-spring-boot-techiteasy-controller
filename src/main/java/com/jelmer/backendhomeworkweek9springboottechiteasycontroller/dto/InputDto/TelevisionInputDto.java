@@ -32,6 +32,6 @@ public class TelevisionInputDto {
     public Integer originalStock;
     public Integer sold;
 
-    public RC rc;
+
 
 }

@@ -24,8 +24,9 @@ public class TelevisionOutputDto {
     public int originalStock;
     public int sold;
 
-public RC rc;
-
+    public RC rc;
+    private CIModuleOutputDto ciModuleOutputDto;
+    private WallbracketOutputDto wallbracketOutputDto;
 
 
 }
