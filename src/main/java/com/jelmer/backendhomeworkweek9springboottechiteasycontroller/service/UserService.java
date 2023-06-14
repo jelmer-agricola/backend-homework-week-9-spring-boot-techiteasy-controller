@@ -10,6 +10,7 @@ import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.repositorie
 import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.utils.RandomStringGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -21,14 +22,14 @@ import java.util.Set;
 public class UserService {
 
     private final UserRepository userRepository;
+    @Autowired
+    @Lazy
+    private PasswordEncoder passwordEncoder;
 
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
-
-    @Autowired
-    @Lazy
 
     // (de spring context etc variant) zodat we niet in een loop van jwtreqfilter . custom service, userservice, security config komen
     public List<UserDto> getUsers() {
@@ -43,9 +44,9 @@ public class UserService {
     public UserDto getUser(String username) {
         UserDto dto = new UserDto();
         Optional<User> user = userRepository.findById(username);
-        if (user.isPresent()){
+        if (user.isPresent()) {
             dto = fromUser(user.get());
-        }else {
+        } else {
             throw new RecordNotFoundException("User not found with " + username);
         }
         return dto;
@@ -70,11 +71,11 @@ public class UserService {
     public void updateUser(String username, UserDto newUser) {
         if (!userRepository.existsById(username)) throw new RecordNotFoundException("User not found with " + username);
         User user = userRepository.findById(username).get();
+        // encoder toevoegen
         user.setPassword(newUser.getPassword());
         userRepository.save(user);
     }
-
-
+// Dit is waarscnhijnlijk voor een ADMIN
 
     public Set<Authority> getAuthorities(String username) {
         if (!userRepository.existsById(username)) throw new UsernameNotFoundException(username);
@@ -82,6 +83,7 @@ public class UserService {
         UserDto userDto = fromUser(user);
         return userDto.getAuthorities();
     }
+// Dit is waarscnhijnlijk voor een ADMIN een rol per keer toevoegen
 
     public void addAuthority(String username, String authority) {
 
@@ -99,7 +101,7 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public static UserDto fromUser(User user){
+    public static UserDto fromUser(User user) {
 
         var dto = new UserDto();
 
@@ -117,15 +119,9 @@ public class UserService {
 
         var user = new User();
 
-//        user.setUsername(userDto.getUsername());
-//        // ervoor zorgen dat het password wel gecodeerd wordt!
-//        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
-//        user.setEnabled(userDto.getEnabled());
-//        user.setApikey(userDto.getApikey());
-//        user.setEmail(userDto.getEmail());
-
         user.setUsername(userDto.getUsername());
-        user.setPassword(userDto.getPassword());
+        // ervoor zorgen dat het password wel gecodeerd wordt!
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         user.setEnabled(userDto.getEnabled());
         user.setApikey(userDto.getApikey());
         user.setEmail(userDto.getEmail());

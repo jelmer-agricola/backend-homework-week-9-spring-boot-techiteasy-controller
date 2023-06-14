@@ -1,6 +1,4 @@
-Gebleven bij 2:01
-paden checken  in 
 
 
-in userservice password check toevogenen 
+in userservice encoder toevoegen bij updateUser
 in spring security config alle paden checken
