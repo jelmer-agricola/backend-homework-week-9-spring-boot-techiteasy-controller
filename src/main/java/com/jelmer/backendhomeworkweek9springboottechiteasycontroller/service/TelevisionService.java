@@ -4,12 +4,11 @@ import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.dto.InputDt
 import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.dto.OutputDto.TelevisionOutputDto;
 import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.exceptions.RecordNotFoundException;
 import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.models.RC;
+import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.models.Television;
 import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.models.Wallbracket;
 import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.repositories.RCRepository;
-import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.models.Television;
 import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.repositories.TelevisionRepository;
 import com.jelmer.backendhomeworkweek9springboottechiteasycontroller.repositories.WallbracketRepository;
-import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -60,6 +59,8 @@ public class TelevisionService {
         TelevisionOutputDto televisionOutputDto = transferTelevisionModelToOutputDto(television);
         return televisionOutputDto;
     }
+
+
 
 
     public TelevisionOutputDto updateTelevision(Long id, TelevisionInputDto televisionInputDto) throws RecordNotFoundException {
